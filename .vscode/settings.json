@@ -1,0 +1,20 @@
+{
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "python.formatting.provider": "black",
+    "python.linting.mypyEnabled": true,
+    "python.linting.mypyArgs": [
+        "--follow-imports=silent",
+        "--ignore-missing-imports",
+        "--show-column-numbers",
+        "--no-pretty",
+    ],
+    "python.linting.pylintArgs": [
+        // "--generated-menbers=cv2.*",
+        "--disable=missing-function-docstring, no-member",
+    ],
+    "python.linting.pylintEnabled": true,
+}

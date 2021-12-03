@@ -1,10 +1,15 @@
+"""
+testing recongize modules by webcam
+"""
+
 from pprint import pprint
 
 import cv2
 
-from components.landmarkHandler import HolisticLandmarks, Vector3d
-from components.mediapipeHandler import MP_Holistic
-from components.myArm import MyArm
+# from components.landmarkHandler import HolisticLandmarks, Vector3d
+# from components.mediapipeHandler import MP_Holistic
+# from components.myArm import MyArm
+from components.arm.myarm import MyArm
 
 # mph = MP_Holistic("./sampleImg/sample1.jpg")
 # mph = MP_Holistic()
@@ -16,7 +21,7 @@ from components.myArm import MyArm
 #     print("retry..")
 # pprint(result)
 
-ma = MyArm(isRightArm=True, visThreshold=0.70)
+ma = MyArm(isRightArm=True, vis_threshold=0.70)
 while 1:
     r = ma.process()
     image = cv2.putText(

@@ -1,4 +1,11 @@
-# https://google.github.io/mediapipe/solutions/pose.html
+"""
+Landmark related constants,
+which need to translate landmark id to name or vise versa.
+
+get more information from:
+https://google.github.io/mediapipe/solutions/pose.html
+"""
+
 __POSE_DATA = [
     "nose",
     "left_eye_inner",

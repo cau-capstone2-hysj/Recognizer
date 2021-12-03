@@ -1,11 +1,12 @@
 import logging
 from time import sleep
-from typing import Dict, List, NamedTuple, Optional
+from typing import Dict, List, NamedTuple
 
 import numpy as np
 
-from .landmarkHandler import MyLandmark, Vector3d
-from .mediapipeHandler import MP_Holistic
+from ..landmark.mylandmark import MyLandmark
+from ..landmark.vector3d import Vector3d
+from ..mp_handler.mp_holistic import MP_Holistic
 
 
 class RecognizedArm(NamedTuple):
@@ -17,44 +18,44 @@ class RecognizedArm(NamedTuple):
 
 
 class MyArm:
-    def __init__(self, isRightArm=True, visThreshold=0.80, imgDir=None) -> None:
-        self.__armSide = "right" if isRightArm else "left"
-        self.__visThreshold = visThreshold
-        self.__mp = MP_Holistic(imgDir)
+    def __init__(self, is_rightarm=True, vis_threshold=0.80, image_dir=None) -> None:
+        self.__armside = "right" if is_rightarm else "left"
+        self.__vis_threshold = vis_threshold
+        self.__mp = MP_Holistic(image_dir)
 
-    def __getMPRs(self):
+    def __get_mpr(self):
         return self.__mp.getMPResult()
 
     def process(self):
 
         while 1:
-            mpr = self.__getMPRs()
+            mpr = self.__get_mpr()
             img, landmarks = mpr.image, mpr.results
-            if not landmarks.pose[self.__armSide]:
+            if not landmarks.pose[self.__armside]:
                 logging.warning("No pose detected")
                 sleep(0.5)
                 continue
-            if not landmarks.hand[self.__armSide]:
+            if not landmarks.hand[self.__armside]:
                 logging.warning("No hand detected")
                 sleep(0.5)
                 continue
             pose = {
-                i: landmarks.pose[self.__armSide][i]
+                i: landmarks.pose[self.__armside][i]
                 for i in ["shoulder", "elbow", "wrist", "pinky", "index"]
             }
             hand = {
-                i: landmarks.hand[self.__armSide][i]
+                i: landmarks.hand[self.__armside][i]
                 for i in ["INDEX_FINGER_TIP", "THUMB_TIP"]
             }
 
-            isVisable = all([p.vis >= self.__visThreshold for p in pose.values()])
-            if not isVisable:
+            is_visible = all([p.vis >= self.__vis_threshold for p in pose.values()])
+            if not is_visible:
                 logging.warning("Not all landmarks are visible")
-                w = ""
+                warning = ""
                 for p in pose:
-                    if pose[p].vis < self.__visThreshold:
-                        w += f"{p} is not visible, {pose[p].vis} \n"
-                logging.warning(w)
+                    if pose[p].vis < self.__vis_threshold:
+                        warning += f"{p} is not visible, {pose[p].vis} \n"
+                logging.warning(warning)
                 sleep(0.5)
                 continue
 
@@ -71,8 +72,8 @@ class MyArm:
 
             wristToHandTip = Vector3d(handTip.np - pose["wrist"].np)
 
-            theta0 = Vector3d([1, 0, 0]).angleBtw(elbowToWrist_projected)
-            theta1 = pose["wrist"].angleBtw(Vector3d(0, -1, 0))
-            theta2 = pose["wrist"].angleBtw(wristToHandTip)
-            d = hand["THUMB_TIP"].distBtw(hand["INDEX_FINGER_TIP"])
+            theta0 = Vector3d([1, 0, 0]).anglebtw(elbowToWrist_projected)
+            theta1 = pose["wrist"].anglebtw(Vector3d(0, -1, 0))
+            theta2 = pose["wrist"].anglebtw(wristToHandTip)
+            d = hand["THUMB_TIP"].distbtw(hand["INDEX_FINGER_TIP"])
             return RecognizedArm(img, pose, hand, [d], [theta0, theta1, theta2])

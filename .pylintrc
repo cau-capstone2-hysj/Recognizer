@@ -1,0 +1,3 @@
+; extension-pkg-whitelist=cv2
+[FORMAT]
+good-names=i, j, k, _, pk, x, y, z, np
