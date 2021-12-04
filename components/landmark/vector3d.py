@@ -5,43 +5,64 @@ and extends following feature:
 unitvector, anglebtw, distbtw
 """
 
-from typing import Union
+from typing import List, Tuple, Union
 
 import numpy as np
 
 
-class Vector3d:
+def check_arguments(args: tuple) -> None:
+    if len(args) == 1:
+        if not isinstance(args[0], (tuple, list, np.ndarray)):
+            raise TypeError(f"input array must be list or ndarray, not {type(args[0])}")
+        if len(args[0]) not in {2, 3}:
+            raise ValueError("input array must be 3 or 2 elements")
+    elif len(args) == 2 and not all(isinstance(arg, (int, float)) for arg in args):
+        raise TypeError("Vector cooridnates must be int or float")
+    elif len(args) == 3 and not all(isinstance(arg, (int, float)) for arg in args):
+        raise TypeError("Vector cooridnates must be int or float")
+    elif len(args) > 3:
+        raise ValueError(f"Invalid number of arguments: {len(args)} > 3")
+
+
+class Vector3d(np.ndarray):
     """
     unitvector: return unit vector of self
     anglebtw: return angle between self and other
     distbtw: return distance between self and other
     """
 
-    def __init__(self, *args: Union[int, float, np.ndarray]):
-        if len(args) == 1:
-            self.__np = np.array(args[0], dtype=np.float64)
-        elif len(args) == 2:
-            self.__np = np.array([args[0], args[1], 0], dtype=np.float64)
-        elif len(args) == 3:
-            self.__np = np.array(args, dtype=np.float64)
-        else:
-            raise ValueError(f"Invalid number of arguments: {len(args)}")
-        self.__x = self.__np[0]
-        self.__y = self.__np[1]
-        self.__z = self.__np[2]
+    def __new__(
+        cls,
+        *args: Union[
+            Tuple[Union[int, float]], List[Union[int, float]], np.ndarray, int, float
+        ],
+    ):
+        check_arguments(args)
+        input_array = np.squeeze(np.array(args))
+        if len(input_array) == 2:
+            input_array = np.append(input_array, [0.0])
+        obj = np.asarray(input_array).view(cls)
+        return obj
+
+    def __init__(
+        self,
+        *args: Union[
+            Tuple[Union[int, float]], List[Union[int, float]], np.ndarray, int, float
+        ],
+    ):
+        self.__x = self[0]
+        self.__y = self[1]
+        self.__z = self[2]
 
     def unitvector(self) -> "Vector3d":
         ans = self.np / np.linalg.norm(self.np)
-        return Vector3d(ans[0], ans[1], ans[2])
+        return Vector3d([ans[0], ans[1], ans[2]])
 
     def anglebtw(self, other: "Vector3d") -> float:
         uv_me = self.unitvector()
         uv_other = other.unitvector()
         product = np.dot(uv_me.np, uv_other.np)
-        if product >= 1:
-            return 0.0
-        if product <= -1:
-            return 180.0
+        product = min(max(product, -1.0), 1.0)
         angle_rad = np.arccos(product)
         return np.rad2deg(angle_rad)
 
@@ -67,10 +88,4 @@ class Vector3d:
 
     @property
     def np(self) -> np.ndarray:
-        return self.__np
-
-    def __str__(self) -> str:
-        return f"({self.__x}, {self.__y}, {self.__z})"
-
-    def __repr__(self) -> str:
-        return self.__str__()
+        return self

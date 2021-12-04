@@ -5,58 +5,85 @@ from components.landmark.vector3d import Vector3d
 
 
 class CoordTest(unittest.TestCase):
-    def test_coordEq(self):
-        a = Vector3d(1, 2, 3)
-        b = Vector3d(1, 2, 3)
-        self.assertEqual(a, b)
+    def test_equality0(self):
+        value1 = Vector3d([1, 2, 3])
+        value2 = Vector3d(1, 2, 3)
+        self.assertEqual(value1, value2)
 
-    def test_coordInit(self):
-        a = Vector3d(1, 2, 3)
-        b = Vector3d(np.array([1, 2, 3]))
-        self.assertEqual(a, b)
+    def test_initialize(self):
+        value1 = Vector3d(1, 2, 3)
+        value2 = Vector3d(np.array([1, 2, 3]))
+        self.assertEqual(value1, value2)
 
-    def test_unitVector(self):
-        a = Vector3d(1, 2, 3)
+    def test_initialize_2args(self):
+        value1 = Vector3d(1, 2)
+        value2 = Vector3d(1, 2, 0)
+        self.assertEqual(value1, value2)
+
+    def test_malformed_vector(self):
+        with self.assertRaises(ValueError):
+            Vector3d([1, 2, 3, 4])
+        with self.assertRaises(ValueError):
+            Vector3d([1])
+        with self.assertRaises(ValueError):
+            Vector3d(1, 2, 3, 4)
+        with self.assertRaises(TypeError):
+            Vector3d(1)
+
+    def test_unit_vector0(self):
+        value1 = Vector3d(1, 2, 3)
         self.assertEqual(
-            a.unitVector(), Vector3d(1 / (14 ** 0.5), 2 / (14 ** 0.5), 3 / (14 ** 0.5))
+            value1.unitvector(),
+            Vector3d(1 / (14 ** 0.5), 2 / (14 ** 0.5), 3 / (14 ** 0.5)),
         )
 
     def test_angle_0(self):
-        a = Vector3d(1, 0, 0)
-        b = Vector3d(1, 0, 0)
-        np.testing.assert_almost_equal(a.angleBtw(b), 0.0)
+        value1 = Vector3d(1, 0, 0)
+        value2 = Vector3d(1, 0, 0)
+        np.testing.assert_almost_equal(value1.anglebtw(value2), 0.0)
 
     def test_angle_45(self):
-        a = Vector3d(1, 0, 0)
-        b = Vector3d(1, 1, 0)
-        np.testing.assert_almost_equal(a.angleBtw(b), 45.0)
+        value1 = Vector3d(1, 0, 0)
+        value2 = Vector3d(1, 1, 0)
+        np.testing.assert_almost_equal(value1.anglebtw(value2), 45.0)
 
     def test_angle_60(self):
-        a = Vector3d(0, 0, 1)
-        b = Vector3d(0, 3 ** 0.5, 1)
-        np.testing.assert_almost_equal(a.angleBtw(b), 60.0)
+        value1 = Vector3d(0, 0, 1)
+        value2 = Vector3d(0, 3 ** 0.5, 1)
+        np.testing.assert_almost_equal(value1.anglebtw(value2), 60.0)
 
     def test_angle_90(self):
-        a = Vector3d(1, 0, 0)
-        b = Vector3d(0, 1, 0)
-        np.testing.assert_almost_equal(a.angleBtw(b), 90.0)
+        value1 = Vector3d(1, 0, 0)
+        value2 = Vector3d(0, 1, 0)
+        np.testing.assert_almost_equal(value1.anglebtw(value2), 90.0)
 
     def test_angle_180(self):
-        a = Vector3d(1, 0, 0)
-        b = Vector3d(-1, 0, 0)
-        np.testing.assert_almost_equal(a.angleBtw(b), 180.0)
+        value1 = Vector3d(1, 0, 0)
+        value2 = Vector3d(-1, 0, 0)
+        np.testing.assert_almost_equal(value1.anglebtw(value2), 180.0)
 
     def test_dist_0(self):
-        a = Vector3d(1, 0, 0)
-        b = Vector3d(1, 0, 0)
-        np.testing.assert_almost_equal(a.distBtw(b), 0.0)
+        value1 = Vector3d(1, 0, 0)
+        value2 = Vector3d(1, 0, 0)
+        np.testing.assert_almost_equal(value1.distbtw(value2), 0.0)
 
     def test_dist_1(self):
-        a = Vector3d(1, 0, 0)
-        b = Vector3d(2, 0, 0)
-        np.testing.assert_almost_equal(a.distBtw(b), 1.0)
+        value1 = Vector3d(1, 0, 0)
+        value2 = Vector3d(2, 0, 0)
+        np.testing.assert_almost_equal(value1.distbtw(value2), 1.0)
+
+    def test_dist_2(self):
+        value1 = Vector3d(1, 1, 0)
+        value2 = Vector3d(2, 2, 0)
+        np.testing.assert_almost_equal(value1.distbtw(value2), 2 ** 0.5)
 
     def test_dist_sqrt2(self):
-        a = Vector3d(1, 0, 0)
-        b = Vector3d(2, 1, 0)
-        np.testing.assert_almost_equal(a.distBtw(b), 2 ** 0.5)
+        value1 = Vector3d(1, 0, 0)
+        value2 = Vector3d(2, 1, 0)
+        np.testing.assert_almost_equal(value1.distbtw(value2), 2 ** 0.5)
+
+    def test_xyz(self):
+        value = Vector3d([1, 2, 3])
+        self.assertEqual(value.x, 1)
+        self.assertEqual(value.y, 2)
+        self.assertEqual(value.z, 3)
