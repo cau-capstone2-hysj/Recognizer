@@ -5,9 +5,11 @@ and extends following feature:
 unitvector, anglebtw, distbtw
 """
 
-from typing import List, Tuple, Union
+from typing import Union
 
 import numpy as np
+
+from ..custom_typings import TypeCoord, TypeRealNumber
 
 
 def check_arguments(args: tuple) -> None:
@@ -31,12 +33,7 @@ class Vector3d(np.ndarray):
     distbtw: return distance between self and other
     """
 
-    def __new__(
-        cls,
-        *args: Union[
-            Tuple[Union[int, float]], List[Union[int, float]], np.ndarray, int, float
-        ],
-    ):
+    def __new__(cls, *args: Union[TypeCoord, TypeRealNumber]):
         check_arguments(args)
         input_array = np.squeeze(np.array(args))
         if len(input_array) == 2:
@@ -44,12 +41,7 @@ class Vector3d(np.ndarray):
         obj = np.asarray(input_array).view(cls)
         return obj
 
-    def __init__(
-        self,
-        *args: Union[
-            Tuple[Union[int, float]], List[Union[int, float]], np.ndarray, int, float
-        ],
-    ):
+    def __init__(self, *args: Union[TypeCoord, TypeRealNumber]):
         self.__x = self[0]
         self.__y = self[1]
         self.__z = self[2]

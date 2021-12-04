@@ -1,21 +1,22 @@
 """
 extends Vector3d to include a visibility value
 """
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 
+from ..custom_typings import TypeCoord, TypeRealNumber
 from .vector3d import Vector3d
 
 
-class Mylandmark:
-    """ """
+class MyLandmark:
+    """
+    Landmark class to store the landmark coordinates and visibility
+    """
 
     def __init__(
         self,
-        coordination: Union[
-            Tuple[Union[int, float]], List[Union[int, float]], np.ndarray
-        ],
+        coordination: Union[TypeRealNumber, TypeCoord],
         visibility: Optional[float] = None,
     ):
         self.__coord = Vector3d(coordination)
