@@ -6,7 +6,7 @@ import numpy as np
 
 from ..landmark.mylandmark import MyLandmark
 from ..landmark.vector3d import Vector3d
-from ..mp_handler.mp_holistic import MP_holistic
+from ..mp_handler.mp_holistic import MpHolistic
 
 
 class RecognizedArm(NamedTuple):
@@ -21,7 +21,7 @@ class MyArm:
     def __init__(self, is_rightarm=True, vis_threshold=0.80, image_dir=None) -> None:
         self.__armside = "right" if is_rightarm else "left"
         self.__vis_threshold = vis_threshold
-        self.__mp = MP_holistic(image_dir)
+        self.__mp = MpHolistic(image_dir)
 
     def __get_mpr(self):
         return self.__mp.process()
@@ -30,7 +30,7 @@ class MyArm:
 
         while 1:
             mpr = self.__get_mpr()
-            img, landmarks = mpr.image, mpr.results
+            img, landmarks = mpr.marked_image, mpr.holistic_landmarks
             if not landmarks.pose[self.__armside]:
                 logging.warning("No pose detected")
                 sleep(0.5)
@@ -48,7 +48,7 @@ class MyArm:
                 for i in ["INDEX_FINGER_TIP", "THUMB_TIP"]
             }
 
-            is_visible = all([p.vis >= self.__vis_threshold for p in pose.values()])
+            is_visible = all(p.vis >= self.__vis_threshold for p in pose.values())
             if not is_visible:
                 logging.warning("Not all landmarks are visible")
                 warning = ""
