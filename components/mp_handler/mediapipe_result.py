@@ -7,6 +7,6 @@ from ..landmark.holisticlandmarks import HolisticLandmarks
 
 class MediapipeResult(NamedTuple):
     image: np.ndarray
-    rawImage: np.ndarray
+    raw_image: np.ndarray
     results: HolisticLandmarks
-    rawResults: type
+    raw_results: type

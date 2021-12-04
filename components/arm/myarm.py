@@ -6,7 +6,7 @@ import numpy as np
 
 from ..landmark.mylandmark import MyLandmark
 from ..landmark.vector3d import Vector3d
-from ..mp_handler.mp_holistic import MP_Holistic
+from ..mp_handler.mp_holistic import MP_holistic
 
 
 class RecognizedArm(NamedTuple):
@@ -21,10 +21,10 @@ class MyArm:
     def __init__(self, is_rightarm=True, vis_threshold=0.80, image_dir=None) -> None:
         self.__armside = "right" if is_rightarm else "left"
         self.__vis_threshold = vis_threshold
-        self.__mp = MP_Holistic(image_dir)
+        self.__mp = MP_holistic(image_dir)
 
     def __get_mpr(self):
-        return self.__mp.getMPResult()
+        return self.__mp.process()
 
     def process(self):
 
