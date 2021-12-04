@@ -8,7 +8,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
-from ..landmark.holisticlandmarks import HolisticLandmarks
+from ..landmark.holistic_landmarks import HolisticLandmarks
 from .webcam import Webcam
 
 MEDIAPIPE_HOLISTIC = mp.solutions.holistic
