@@ -4,7 +4,7 @@ import numpy as np
 from components.landmark.vector3d import Vector3d
 
 
-class CoordTest(unittest.TestCase):
+class Vector3dTest(unittest.TestCase):
     def test_equality0(self):
         value1 = Vector3d([1, 2, 3])
         value2 = Vector3d(1, 2, 3)
