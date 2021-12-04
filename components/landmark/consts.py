@@ -67,7 +67,7 @@ __HAND_DATA = [
     "PINKY_TIP",
 ]
 
-POSE_LANDMARK_ID_TO_NAME = {i: l for i, l in enumerate(__POSE_DATA)}
+POSE_LANDMARK_ID_TO_NAME = dict(enumerate(__POSE_DATA))
 POSE_LANDMARK_NAME_TO_ID = {l: i for i, l in enumerate(__POSE_DATA)}
-HAND_LANDMARK_ID_TO_NAME = {i: l for i, l in enumerate(__HAND_DATA)}
+HAND_LANDMARK_ID_TO_NAME = dict(enumerate(__HAND_DATA))
 HAND_LANDMARK_NAME_TO_ID = {l: i for i, l in enumerate(__HAND_DATA)}
