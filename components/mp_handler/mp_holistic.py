@@ -39,7 +39,7 @@ class MpHolistic:
         min_tracking_confidence: float = 0.5,
     ) -> None:
 
-        self.__nextframe = __get_framesource(image_directory)
+        self.__nextframe = _get_framesource(image_directory)
         self.__holistic = MEDIAPIPE_HOLISTIC.Holistic(
             static_image_mode=False,
             min_detection_confidence=min_detection_confidence,
@@ -56,7 +56,7 @@ class MpHolistic:
 
         raw_results = self.__holistic.process(image_rgb)
         hlms = HolisticLandmarks(raw_results)
-        image_bgr_marked = __mark_landmarks_on_image(image_bgr.copy(), raw_results)
+        image_bgr_marked = _mark_landmarks_on_image(image_bgr.copy(), raw_results)
 
         return MpResult(
             marked_image=image_bgr_marked,
@@ -77,7 +77,7 @@ class MpHolistic:
                 break
 
 
-def __get_framesource(image_dir: Optional[str]) -> Iterator[np.ndarray]:
+def _get_framesource(image_dir: Optional[str]) -> Iterator[np.ndarray]:
     """
     yields frames from webcam or image directory
     if imagae_dir is None, Webcam is used to retrieve frames
@@ -96,7 +96,7 @@ def __get_framesource(image_dir: Optional[str]) -> Iterator[np.ndarray]:
             yield __camera.frame
 
 
-def __mark_landmarks_on_image(image_bgr: np.ndarray, mp_results_raw) -> np.ndarray:
+def _mark_landmarks_on_image(image_bgr: np.ndarray, mp_results_raw) -> np.ndarray:
     """
     Draw landmarks on the image.
     """
