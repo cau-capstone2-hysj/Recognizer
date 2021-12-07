@@ -5,7 +5,7 @@ import cv2
 
 # from components.landmarkHandler import HolisticLandmarks, Vector3d
 # from components.mediapipeHandler import MP_Holistic
-from components.myArm import MyArm
+from components.arm import MyArm
 from components.Server import Server
 
 ma = MyArm(isRightArm=True, visThreshold=0.70)

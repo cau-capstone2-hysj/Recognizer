@@ -82,8 +82,22 @@ class Vector3dTest(unittest.TestCase):
         value2 = Vector3d(2, 1, 0)
         np.testing.assert_almost_equal(value1.distbtw(value2), 2 ** 0.5)
 
-    def test_xyz(self):
+    def test_xyz_1(self):
         value = Vector3d([1, 2, 3])
         self.assertEqual(value.x, 1)
         self.assertEqual(value.y, 2)
         self.assertEqual(value.z, 3)
+
+    def test_xyz_2(self):
+        value = Vector3d(1, 2, 3)
+        self.assertEqual(value.x, 1)
+        self.assertEqual(value.y, 2)
+        self.assertEqual(value.z, 3)
+
+    def test_sub_1(self):
+        value1 = Vector3d(1, 2, 3)
+        value2 = Vector3d(3, 2, 1)
+        subed = value1 - value2
+        answer = Vector3d(-2, 0, 2)
+        self.assertEqual(subed, answer)
+        self.assertEqual(subed.x, answer.x)

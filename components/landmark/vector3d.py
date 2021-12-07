@@ -66,6 +66,12 @@ class Vector3d(np.ndarray):
             return np.isclose(self.np, __o.np).all()
         return False
 
+    def __add__(self, __o: "Vector3d") -> "Vector3d":
+        return Vector3d(self.np + __o.np)
+
+    def __sub__(self, __o: "Vector3d") -> "Vector3d":
+        return Vector3d(self.np - __o.np)
+
     @property
     def x(self) -> np.float64:
         return self.__x
@@ -80,4 +86,4 @@ class Vector3d(np.ndarray):
 
     @property
     def np(self) -> np.ndarray:
-        return self
+        return np.array([self.__x, self.__y, self.__z])
