@@ -3,7 +3,7 @@ create a chunk of orgainzed landmarks from raw landmarks
 """
 from dataclasses import dataclass, field
 from pprint import pformat
-from typing import Dict
+from typing import Dict, NamedTuple
 
 # from ..mp_handler.mediapipe_result import MediaPipeResult
 from mediapipe.framework.formats.landmark_pb2 import Landmark
@@ -13,7 +13,7 @@ from .consts import HAND_LANDMARK_ID_TO_NAME, POSE_LANDMARK_ID_TO_NAME
 from .mylandmark import MyLandmark
 
 
-def __parse_raw_mp_results(mp_results) -> tuple:
+def _parse_raw_mp_results(mp_results) -> tuple:
     """
     parse results to landmarks and make values None-safe
     """
@@ -43,12 +43,12 @@ class HolisticLandmarks:
     process MediapipeResult to organized landmarks
     """
 
-    def __init__(self, raw_mediapipe_result: type) -> None:
+    def __init__(self, raw_mediapipe_result: NamedTuple) -> None:
         (
             __pose_worldlandmarks,
             __lefthand_landmarks,
             __righthand_landmarks,
-        ) = __parse_raw_mp_results(raw_mediapipe_result)
+        ) = _parse_raw_mp_results(raw_mediapipe_result)
 
         self.__landmarks: dict = {
             "pose": {"left": {}, "right": {}},
