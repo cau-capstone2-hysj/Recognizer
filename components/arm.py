@@ -1,4 +1,5 @@
 import logging
+from math import atan2, pi
 from time import sleep
 from typing import Dict, List, NamedTuple, Optional
 
@@ -15,23 +16,11 @@ __HAND_FILTER_LIST = ["INDEX_FINGER_TIP", "THUMB_TIP"]
 
 
 def _pose_filter(pose: Dict[str, MyLandmark]) -> Dict[str, MyLandmark]:
-    return {
-        i: pose[i]
-        for i in __POSE_FILTER_LIST
-        # if pose[i]
-    }
+    return {name: pose[name] for name in __POSE_FILTER_LIST if name in pose}
 
 
 def _hand_filter(hand: Dict[str, MyLandmark]) -> Dict[str, MyLandmark]:
-    return {
-        i: hand[i]
-        for i in __HAND_FILTER_LIST
-    }
-
-
-def _warn_and_sleep(msg: str) -> None:
-    logging.warning(msg)
-    sleep(0.5)
+    return {name: hand[name] for name in __HAND_FILTER_LIST if name in hand}
 
 
 class RecognizedArm(NamedTuple):
@@ -40,10 +29,16 @@ class RecognizedArm(NamedTuple):
 
 
 class MyArm:
+    """
+    Returns RecognizedArm from MpHolistic
+    """
+
     def __init__(self, is_rightarm=True, vis_threshold=0.80, image_dir=None) -> None:
         self.__armside = "right" if is_rightarm else "left"
         self.__vis_threshold = vis_threshold
-        self.__mp = MpHolistic(image_dir)
+        self.__mp = MpHolistic(
+            image_dir, min_detection_confidence=0.5, min_tracking_confidence=0.9
+        )
 
     def __get_mpr(self):
         return self.__mp.process()
@@ -63,11 +58,11 @@ class MyArm:
             img, landmarks = mpr.marked_image, mpr.holistic_landmarks
 
             if not self.__is_pose_data_available(landmarks):
-                _warn_and_sleep("No pose detected")
-                continue
+                logging.warning("No pose detected")
+                # continue
             if not self.__is_hand_data_available(landmarks):
-                _warn_and_sleep("No hand detected")
-                continue
+                logging.warning("No hand detected")
+                # continue
 
             pose_filtered = _pose_filter(landmarks.pose[self.__armside])
             hand_filtered = _hand_filter(landmarks.hand[self.__armside])
@@ -84,33 +79,44 @@ class MyArm:
                     if vis.vis < self.__vis_threshold
                 ]
                 warning_msg += "\n".join(unavailable_poses)
-                _warn_and_sleep(warning_msg)
-                continue
+                logging.warning(warning_msg)
+                # continue
 
             return img, pose_filtered, hand_filtered
 
     def process(self):
         img, pose, hand = self.__get_data()
-        pose, hand = map(_landmarks_to_vectors, (pose, hand))
-        origin = pose["elbow"]
-        pose = _translate_vectors(pose, origin)
+        if pose and hand:
+            pose, hand = map(_landmarks_to_vectors, (pose, hand))
 
-        handTip = Vector3d((pose["index"] + pose["pinky"]) / 2)
+            origin = pose["elbow"]
+            pose = _translate_vectors(pose, origin)
+            logging.info(
+                f"elbow: {pose['elbow']}, wrist: {pose['wrist']}, elbow-wrist: {round(Vector3d(pose['elbow'].x, pose['elbow'].y, 0).distbtw(Vector3d(pose['wrist'].x, pose['wrist'].y, 0)),2)}"
+            )
 
-        # elbowToWrist_projected = Vector3d(
-        #     pose["wrist"] - np.array([0, 0, pose["wrist"].z])
-        # )
-        elbowToWrist_projected = Vector3d(pose["wrist"].x, pose["wrist"].y, 0)
+            handtip = Vector3d((pose["index"] + pose["pinky"]) / 2)
 
-        wristToHandTip = Vector3d(handTip - pose["wrist"])
-        dist_btw_thumb_index = hand["THUMB_TIP"].distbtw(hand["INDEX_FINGER_TIP"])
+            # elbowToWrist_projected = Vector3d(
+            #     pose["wrist"] - np.array([0, 0, pose["wrist"].z])
+            # )
+            elbowToWrist_projected = Vector3d(pose["wrist"].x, 0, pose["wrist"].z)
 
-        theta0 = Vector3d([1, 0, 0]).anglebtw(elbowToWrist_projected)
-        theta1 = pose["wrist"].anglebtw(Vector3d(0, -1, 0))
-        theta2 = pose["wrist"].anglebtw(wristToHandTip)
-        theta3 = _distance2angle(dist_btw_thumb_index)
-        thetas = [theta0, theta1, theta2, theta3]
-        return RecognizedArm(img, list(map(int, thetas)))
+            wristToHandTip = Vector3d(handtip - pose["wrist"])
+            dist_btw_thumb_index = hand["THUMB_TIP"].distbtw(hand["INDEX_FINGER_TIP"])
+
+            # theta0 = Vector3d([0, 0, 1]).anglebtw(elbowToWrist_projected)
+            theta0 = atan2(pose["wrist"].z, pose["wrist"].x) * 180 / pi
+            # theta0 = _distance_to_angle(-0.3, 0.3, 170, 10, pose["wrist"].z)
+            # theta1 = pose["wrist"].anglebtw(Vector3d(0, -1, 0))
+            theta1 = _distance_to_angle(0, -0.2, 0, 90, pose["wrist"].y)
+            theta2 = pose["wrist"].anglebtw(wristToHandTip)
+            # theta3 = _distance2angle3(dist_btw_thumb_index)
+            theta3 = _distance_to_angle(0, 0.26, 60, 0, dist_btw_thumb_index)
+            thetas = [theta0, theta1, theta2, theta3]
+            return RecognizedArm(img, list(map(int, thetas)))
+        else:
+            return RecognizedArm(img, [-1, -1, -1, -1])
 
 
 def _translate_vectors(
@@ -123,11 +129,10 @@ def _landmarks_to_vectors(landmarks: Dict[str, MyLandmark]) -> Dict[str, Vector3
     return {k: Vector3d(v.coord) for k, v in landmarks.items()}
 
 
-def _distance2angle(distance: float) -> float:
-    # 0.26 -> 0
-    # 0.01 -> 50
-    max_distance, min_distance = 0.24, 0.01
-    distance = max(distance, min_distance)
-    distance = min(distance, max_distance)
-    angle = (1 - ((distance - min_distance) / (max_distance - min_distance))) * 60
-    return angle
+def _distance_to_angle(
+    min_dist: float, max_dist: float, min_angle: float, max_angle: float, dist: float
+) -> float:
+    value = min_angle + (dist - min_dist) / (max_dist - min_dist) * (
+        max_angle - min_angle
+    )
+    return min(max(value, 0), 180)

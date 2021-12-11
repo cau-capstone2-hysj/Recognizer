@@ -87,3 +87,9 @@ class Vector3d(np.ndarray):
     @property
     def np(self) -> np.ndarray:
         return np.array([self.__x, self.__y, self.__z])
+
+    def __repr__(self) -> str:
+        return f"({round(self.__x, 3)}, {round(self.__y, 3)}, {round(self.__z, 3)})"
+
+    def __str__(self) -> str:
+        return self.__repr__()

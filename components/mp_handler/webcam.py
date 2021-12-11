@@ -1,6 +1,9 @@
 """
 handles camera object from cv2
 """
+from platform import system
+from time import perf_counter
+
 import cv2
 import numpy as np
 
@@ -11,26 +14,22 @@ class Webcam:
     """
 
     def __init__(self) -> None:
-        # from time import perf_counter
 
-        # pt = perf_counter()
-        capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-        # npt = perf_counter()
-        # print(f"Webcam init took {npt - pt} seconds")
-        # pt = npt
+        perf_count = perf_counter()
+
+        capture = (
+            cv2.VideoCapture(0, cv2.CAP_DSHOW)
+            if system() == "Windows"
+            else cv2.VideoCapture(0)
+        )
+        # capture = cv2.VideoCapture(1)
         capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc("M", "J", "P", "G"))
-        # npt = perf_counter()
-        # print(f"Webcam set fourcc took {npt - pt} seconds")
-        # pt = npt
+
         capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-        # npt = perf_counter()
-        # print(f"Webcam set resolution took {npt - pt} seconds")
-        # pt = npt
         capture.set(cv2.CAP_PROP_FPS, 60)
-        # npt = perf_counter()
-        # print(f"Webcam set fps took {npt - pt} seconds")
 
+        print(f"Webcam launced in: {perf_counter() - perf_count}")
         self.__cap = capture
 
     @property
