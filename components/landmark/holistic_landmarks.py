@@ -18,7 +18,7 @@ def _parse_raw_mp_results(mp_results) -> tuple:
     parse results to landmarks and make values None-safe
     """
     pose_worldlandmarks, lefthand_landmarks, righthand_landmarks = [], [], []
-    if mp_results.pose_world_landmarks:
+    if mp_results.pose_landmarks:
         pose_worldlandmarks = mp_results.pose_world_landmarks.landmark
     if mp_results.left_hand_landmarks:
         lefthand_landmarks = mp_results.left_hand_landmarks.landmark

@@ -2,6 +2,7 @@
 testing recongize modules by webcam
 """
 
+import logging
 from pprint import pprint
 
 import cv2
@@ -17,10 +18,10 @@ from components.arm import MyArm
 # mpr = mph.getMPResult()
 # img, result = mpr.image, mpr.results
 # while not (result.hand["left"] or result.hand["right"]):
-#     img, result = mph.getMPResult()
 #     print("retry..")
 # pprint(result)
 
+logging.getLogger().setLevel(logging.INFO)
 ma = MyArm(is_rightarm=True, vis_threshold=0.70)
 while 1:
     r = ma.process()
@@ -30,8 +31,8 @@ while 1:
         (500, 100),
         cv2.FONT_HERSHEY_PLAIN,
         3,
-        (0, 0, 0),
-        2,
+        (255, 255, 0),
+        3,
     )
     cv2.imshow("MediaPipe Holistic", r.image)
     if cv2.waitKey(5) & 0xFF == 27:
